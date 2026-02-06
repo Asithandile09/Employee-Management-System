@@ -33,5 +33,3 @@ This project demonstrates CRUD functionality, database integration, and a clean 
 ## Getting Started
 
 Open the application in Visual studio and run the application
-```bash
-git clone https://github.com/your-username/your-repo-name.git
