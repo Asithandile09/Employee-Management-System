@@ -1,0 +1,45 @@
+﻿@model Employees.Models.Employee
+@{
+    ViewData["Title"] = "Create Employee";
+}
+
+<div class="container mt-4">
+    <h2>Create New Employee</h2>
+    <form asp-action="Create" method="post">
+        <div class="form-group">
+            <label asp-for="FirstName"></label>
+            <input asp-for="FirstName" class="form-control" />
+            <span asp-validation-for="FirstName" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="LastName"></label>
+            <input asp-for="LastName" class="form-control" />
+            <span asp-validation-for="LastName" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Age"></label>
+            <input asp-for="Age" class="form-control" />
+            <span asp-validation-for="Age" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Email"></label>
+            <input asp-for="Email" class="form-control" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="DepartmentID"></label>
+            <select asp-for="DepartmentID" class="form-control" asp-items="ViewBag.DepartmentID"></select>
+            <span asp-validation-for="DepartmentID" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-success">Create</button>
+        <a asp-action="Index" class="btn btn-secondary">Back</a>
+    </form>
+    @section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    }
+</div>

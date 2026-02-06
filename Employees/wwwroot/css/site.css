@@ -1,0 +1,63 @@
+/* Custom colors */
+body {
+    background-color: #f5f7fa; /* soft light blue-gray */
+    color: #333;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.navbar-custom {
+    background-color: #2a9d8f; /* teal-ish */
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+}
+
+    .navbar-custom .nav-link {
+        color: #e9f5f2;
+        font-size: 1.1rem;
+        transition: color 0.3s ease;
+    }
+
+        .navbar-custom .nav-link:hover,
+        .navbar-custom .nav-link.active {
+            color: #f4a261; /* warm accent */
+        }
+
+.navbar-brand {
+    color: #e9f5f2 !important;
+    font-weight: 700;
+    font-size: 1.5rem;
+    letter-spacing: 1.2px;
+}
+
+/* Home page styles */
+.home-welcome {
+    background: #ffffff;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(42, 157, 143, 0.15);
+    max-width: 600px;
+    margin: 60px auto;
+    color: #264653;
+}
+
+    .home-welcome h1 {
+        font-weight: 700;
+        margin-bottom: 20px;
+    }
+
+    .home-welcome p.lead {
+        font-size: 1.2rem;
+        margin-bottom: 25px;
+        color: #6c757d;
+    }
+
+    .home-welcome a {
+        color: #2a9d8f;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+        .home-welcome a:hover {
+            color: #f4a261;
+            text-decoration: underline;
+        }

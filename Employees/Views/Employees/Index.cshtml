@@ -1,0 +1,277 @@
+﻿@model IEnumerable<Employees.Models.Employee>
+@{
+    ViewData["Title"] = "Employee Management System";
+}
+
+<div class="container mt-4">
+
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Total Employees</h5>
+                    <p class="card-text display-5">@Model.Count()</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Active Employees</h5>
+                    <p class="card-text display-5">@Model.Count(e => e.IsActive)</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-danger mb-3">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Inactive Employees</h5>
+                    <p class="card-text display-5">@Model.Count(e => !e.IsActive)</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info mb-3">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Departments</h5>
+                    <p class="card-text display-6">
+                        @if (ViewData["DepartmentsCount"] != null)
+                        {
+                            @foreach (var dept in ViewData["DepartmentsCount"] as List<DepartmentStat>)
+                            {
+                                <span class="badge bg-warning text-dark me-1">
+                                    @dept.Department: @dept.Count
+                                </span>
+                            }
+                        }
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-3 d-flex justify-content-between">
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addEmployeeModal">
+            <i class="bi bi-person-plus"></i> Add Employee
+        </button>
+        <button class="btn btn-secondary" onclick="exportTableToCSV('employees.csv')">
+            <i class="bi bi-download"></i> Export CSV
+        </button>
+    </div>
+
+    <form method="get" class="mb-4">
+        <div class="row g-2 align-items-center">
+            <div class="col-md-3">
+                @Html.DropDownList("searchDepartment",
+                (SelectList)ViewData["Departments"],
+                                "All Departments",
+                                new { @class = "form-select" })
+            </div>
+
+            <div class="col-md-2">
+                <input type="number" name="ageFilter" class="form-control" placeholder="Min Age" />
+            </div>
+
+            <div class="col-md-5">
+                <div class="input-group">
+                    <input type="text" name="searchName" class="form-control" placeholder="Search by Name..." />
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-search"></i> Search
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-md-2 text-end">
+                <a href="@Url.Action("Index")" class="btn btn-outline-secondary w-100">Reset</a>
+            </div>
+        </div>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle" id="employeeTable">
+            <thead class="table-dark text-center">
+                <tr>
+                    <th>Profile</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Position</th>
+                    <th>Age</th>
+                    <th>Department</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var emp in Model)
+                {
+                    <tr>
+                        <td class="text-center">
+                            @if (!string.IsNullOrEmpty(emp.ProfilePicture))
+                            {
+                                <img src="@emp.ProfilePicture" class="rounded-circle border" width="40" height="40" style="object-fit: cover;" />
+                            }
+                            else
+                            {
+                                var initials = "";
+                                if (!string.IsNullOrEmpty(emp.FirstName)) { initials += emp.FirstName[0]; }
+                                if (!string.IsNullOrEmpty(emp.LastName)) { initials += emp.LastName[0]; }
+
+                                <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center mx-auto"
+                                     style="width: 40px; height: 40px; font-weight: bold; font-size: 14px;">
+                                    @initials.ToUpper()
+                                </div>
+                            }
+                        </td>
+
+                        <td>@emp.FirstName @emp.LastName</td>
+                        <td>@(!string.IsNullOrEmpty(emp.Email) ? emp.Email : "-")</td>
+                        <td>
+                            <span class="badge bg-info text-dark">
+                                @(!string.IsNullOrEmpty(emp.Position) ? emp.Position : "-")
+                            </span>
+                        </td>
+                        <td>@emp.Age</td>
+                        <td><span class="badge bg-secondary">@emp.Department?.Name</span></td>
+                        <td>
+                            <span class="badge @(emp.IsActive ? "bg-success" : "bg-danger")">
+                                @(emp.IsActive ? "Active" : "Inactive")
+                            </span>
+                        </td>
+
+                        <td class="text-center">
+                            <a class="btn btn-sm btn-warning" href="@Url.Action("Edit", new { id = emp.ID })" title="Edit">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            <a class="btn btn-sm btn-danger" href="@Url.Action("Delete", new { id = emp.ID })" title="Delete">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                            <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#viewEmployeeModal-@emp.ID" title="View">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+@foreach (var emp in Model)
+{
+        <div class="modal fade" id="viewEmployeeModal-@emp.ID" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">@emp.FirstName @emp.LastName</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        @if (!string.IsNullOrEmpty(emp.ProfilePicture))
+                        {
+                            <img src="@emp.ProfilePicture" class="rounded-circle mb-3" width="80" height="80" style="object-fit: cover;" />
+                        }
+                        else
+                        {
+                            var initials = "";
+                            if (!string.IsNullOrEmpty(emp.FirstName)) { initials += emp.FirstName[0]; }
+                            if (!string.IsNullOrEmpty(emp.LastName)) { initials += emp.LastName[0]; }
+
+                            <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center mx-auto mb-3"
+                                 style="width: 80px; height: 80px; font-size: 24px; font-weight:bold;">
+                                @initials.ToUpper()
+                            </div>
+                        }
+                        <p><strong>Email:</strong> @(!string.IsNullOrEmpty(emp.Email) ? emp.Email : "-")</p>
+                        <p><strong>Position:</strong> @(!string.IsNullOrEmpty(emp.Position) ? emp.Position : "-")</p>
+                        <p><strong>Age:</strong> @emp.Age</p>
+                        <p><strong>Department:</strong> @emp.Department?.Name</p>
+                        <p><strong>Status:</strong> @(emp.IsActive ? "Active" : "Inactive")</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+}
+
+<div class="modal fade" id="addEmployeeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form asp-action="Create" method="post" enctype="multipart/form-data">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Employee</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-2">
+                        <label>First Name</label>
+                        <input type="text" class="form-control" name="FirstName" required />
+                    </div>
+                    <div class="mb-2">
+                        <label>Last Name</label>
+                        <input type="text" class="form-control" name="LastName" required />
+                    </div>
+                    <div class="mb-2">
+                        <label>Email</label>
+                        <input type="email" class="form-control" name="Email" required />
+                    </div>
+                    <div class="mb-2">
+                        <label>Position</label>
+                        <input type="text" class="form-control" name="Position" />
+                    </div>
+                    <div class="mb-2">
+                        <label>Age</label>
+                        <input type="number" class="form-control" name="Age" min="18" max="65" />
+                    </div>
+                    <div class="mb-2">
+                        <label>Department</label>
+                        <select class="form-control" name="DepartmentID">
+                            @foreach (var dept in ViewData["Departments"] as SelectList)
+                            {
+                                <option value="@dept.Value">@dept.Text</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <label>Profile Picture (optional)</label>
+                        <input type="file" class="form-control" name="ProfilePicture" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Add Employee</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Export CSV function
+        function exportTableToCSV(filename) {
+            var csv = [];
+            var rows = document.querySelectorAll("#employeeTable tr");
+            for (var i = 0; i < rows.length; i++) {
+                var row = [], cols = rows[i].querySelectorAll("td, th");
+                for (var j = 0; j < cols.length; j++)
+                    // Clean up text content to avoid breaking CSV format
+                    row.push('"' + cols[j].innerText.trim() + '"');
+                csv.push(row.join(","));
+            }
+            var csvFile = new Blob([csv.join("\n")], { type: "text/csv" });
+            var downloadLink = document.createElement("a");
+            downloadLink.download = filename;
+            downloadLink.href = window.URL.createObjectURL(csvFile);
+            downloadLink.style.display = "none";
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+        }
+
+        // Initialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    </script>
+}
